@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="css/index.css" />
+		<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+		<title></title>
+	</head>
+
+	<body>
+		<div id='app'>
+			<div class="head-form">
+				<input type="text" id='title' placeholder="请输入标题">
+				<input type="text" id="user" placeholder="请输入发布者">
+				<input type="date" id="date" placeholder="请输入发布日期">
+				<input type="button" id="submitBtn" value="新增" @click="add()">
+				<input type="text" id="searchInput" placeholder="请输入搜索关键字" v-model="key">
+				<input type="button" id="searchBtn" value="搜索" @click="search()">
+			</div>
+			<div class="content-table">
+				<table border="1" cellspacing="0">
+					<tr>
+						<th>序号</th>
+						<th>标题</th>
+						<th>发布人</th>
+						<th>发布时间</th>
+						<th>操作</th>
+					</tr>
+					<span v-show="searchData!=null">
+					<tr v-for="(data,index) in searchData" :key="data" style="background-color: #ffc1c1;">
+						<td>{{index+1}}</td>
+						<td>{{data.title}}</td>
+						<td>{{data.user}}</td>
+						<td>{{data.date}}</td>
+						<td><a href="#" id="del" @click="del(index)">删除</a><a href="#" id="edit" @click="edit(index,data)">编辑</a></td>
+					</tr>
+				</span>
+					<tr v-for="(data,index) in dataList" :key="data">
+						<td>{{index+1}}</td>
+						<td>{{data.title}}</td>
+						<td>{{data.user}}</td>
+						<td>{{data.date}}</td>
+						<td>
+							<a href="#" id="del" @click="del(index)">删除</a>
+							<a href="#" id="edit" @click="edit(index,data)">编辑</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="mask-form" id="mask-form" v-clock v-if="displayMask">
+				<form class="edit-form">
+					<div>编辑<span class="close" @click="close()">x</span></div>
+					<span>标题：</span><input type="text" id="maskTitle" v-model="editData.title"><br>
+					<span>作者：</span><input type="text" id="maskUser" v-model="editData.user"><br>
+					<span>时间：</span><input type="date" id="maskDate" v-model="editData.date">
+					<br>
+					<input type="button" id="maskSaveBtn" value="更新" @click="save()">
+					<input type="button" id="maskCancelBtn" value="取消" @click="close()">
+				</form>
+			</div>
+		</div>
+		<p>哈哈哈</p>
+		<script>
+			$("p").CSS("background","yellow");
+			var app = new Vue({
+				el: "#app",
+				data: {
+					dataList: [{
+							title: 'vue',
+							user: 'congcong',
+							date: '2020-05-10'
+						},
+						{
+							title: 'vue',
+							user: 'cccc',
+							date: '2020-05-10'
+						},
+					],
+					editData: null,
+					editId: null,
+					displayMask: false,
+					searchData: null,
+					key: "", //搜索的关键字
+				},
+				watch: {
+					key: {
+
+						handler(newKey, oldKey) {
+
+							this.search();
+						},
+
+					}
+				},
+				methods: {
+					del: function(index) {
+						this.dataList.splice(index, 1);
+					},
+					edit: function(index, temp) {
+
+						this.editData = {
+							title: temp.title,
+							user: temp.user,
+							date: temp.date
+						};
+
+						this.editId = index;
+						this.displayMask = true;
+
+					},
+					add: function() {
+						var title = document.getElementById("title").value;
+						var user = document.getElementById("user").value;
+						var date = document.getElementById("date").value;
+
+						document.getElementById("title").value = "";
+						document.getElementById("user").value = "";
+						document.getElementById("date").value = "";
+
+						if(title && user && date) {
+							var d = {
+								title: title,
+								user: user,
+								date: date
+							};
+							this.dataList.push(d);
+						} else {
+							alert("请将信息填写完整！");
+						}
+					},
+					close: function() {
+						this.displayMask = false;
+					},
+					save: function() {
+						this.dataList.push(this.editData);
+
+						var index = this.editId;
+						this.dataList.splice(index, 1, this.editData);
+						this.dataList.pop();
+
+						this.close();
+						alert("保存成功！");
+					},
+					search: function() {
+						var arr = this.dataList;
+						var newArr = [];
+						var key = this.key;
+
+						if(key) {
+							arr.filter(function(item) {
+								if(item.title.indexOf(key) != -1) {
+									newArr.push(item);
+								}
+							});
+						} else {
+							this.searchData = null;
+						}
+						console.log(newArr);
+						this.searchData = newArr;
+					}
+
+				}
+			});
+		</script>
+	</body>
+
+</html>
